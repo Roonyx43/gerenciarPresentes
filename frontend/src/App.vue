@@ -39,6 +39,12 @@
               <GiftsManager />
             </div>
           </div>
+
+          <div class="space-y-4">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-[0_8px_40px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_50px_rgba(0,0,0,0.12)] transition">
+              <TopContributors />
+            </div>
+          </div>
         </section>
 
         <!-- Toasts -->
@@ -54,6 +60,7 @@ import { VueLenis } from 'lenis/vue'
 import ContributionsList from './components/ContributionsList.vue'
 import GiftsManager from './components/GiftsManager.vue'
 import Toasts from './components/Toasts.vue'
+import TopContributors from './components/TopContributions.vue'
 </script>
 
 <style scoped>

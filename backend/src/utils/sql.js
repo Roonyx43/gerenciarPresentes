@@ -11,3 +11,27 @@ export const SELECT_GIFTS = `
   FROM public.gifts
   ORDER BY id DESC
 `;
+
+export const SELECT_TOP_CONTRIBUTORS = `
+  SELECT
+    COALESCE(c.padrinho_name, '(Sem nome)') AS padrinho_name,
+    SUM(c.amount)::numeric AS total_amount,
+    COUNT(*)::int AS contributions_count
+  FROM public.contributions c
+  WHERE LOWER(c.status) IN ('paid', 'pago')
+  GROUP BY c.padrinho_name
+  ORDER BY total_amount DESC
+  LIMIT $1
+`;
+
+export const SELECT_TOP_CONTRIBUTORS_BY_GIFT = `
+  SELECT
+    COALESCE(c.padrinho_name, '(Sem nome)') AS padrinho_name,
+    SUM(c.amount)::numeric AS total_amount,
+    COUNT(*)::int AS contributions_count
+  FROM public.contributions c
+  WHERE LOWER(c.status) IN ('paid', 'pago') AND c.gift_id = $1
+  GROUP BY c.padrinho_name
+  ORDER BY total_amount DESC
+  LIMIT $2
+`;
