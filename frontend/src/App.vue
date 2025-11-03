@@ -4,7 +4,7 @@
     <div class="max-w-6xl mx-auto px-6 py-12 space-y-12">
       
       <!-- Header -->
-      <header class="rounded-3xl p-8 bg-gradient-to-r from-blue-100 to-blue-200 shadow-[0_6px_40px_rgba(0,0,0,0.05)]">
+      <header class="rounded-3xl p-8 bg-gradient-to-r from-blue-300 to-blue-500 shadow-[0_6px_40px_rgba(0,0,0,0.05)]">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="h-12 w-12 rounded-2xl bg-blue-600 grid place-items-center text-white shadow-[0_10px_25px_rgba(37,99,235,0.3)]">
@@ -15,22 +15,18 @@
               </svg>
             </div>
             <div>
-              <h1 class="title text-3xl font-semibold text-gray-800">Lista de Presentes</h1>
-              <p class="text-gray-600">Gerencie gifts e contribuições num toque.</p>
+              <h1 class="title text-3xl font-semibold text-gray-100">Lista de Presentes</h1>
+              <p class="text-gray-200">Gerencie a lista de presentes e contribuições.</p>
             </div>
           </div>
 
-          <a href="http://localhost:4000/health" target="_blank" class="text-xs text-gray-500 underline">
-            /health
-          </a>
         </div>
       </header>
 
       <!-- Grid principal -->
-      <section class="grid lg:grid-cols-1 gap-10">
+      <section class="grid grid-cols-1 gap-10">
         <!-- Contributions -->
-        <div class="lg:col-span-2 space-y-4">
-          <h2 class="text-lg font-semibold text-gray-700">Contribuições</h2>
+        <div class="space-y-4">
           <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-[0_8px_40px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_50px_rgba(0,0,0,0.12)] transition">
             <ContributionsList />
           </div>
@@ -38,7 +34,6 @@
 
         <!-- Gifts -->
         <div class="space-y-4">
-          <h2 class="text-lg font-semibold text-gray-700">Presentes</h2>
           <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-[0_8px_40px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_50px_rgba(0,0,0,0.12)] transition">
             <GiftsManager />
           </div>
@@ -58,7 +53,9 @@ import Toasts from './components/Toasts.vue'
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Prata&display=swap');
+
 .title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Great Vibes', serif;
 }
 </style>
