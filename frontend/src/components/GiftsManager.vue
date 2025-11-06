@@ -68,7 +68,7 @@
               <label :for="'file-' + g.id"
                 class="px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer">Trocar</label>
 
-              <button class="px-3 py-1.5 rounded bg-red-500 text-white text-xs hover:bg-red-600"
+              <button class="px-3 py-1.5 rounded bg-red-500 text-white text-xs hover:bg-red-600 cursor-pointer"
                 @click="removeImage(g)">
                 Remover
               </button>
