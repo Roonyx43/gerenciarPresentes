@@ -22,6 +22,20 @@ export const listGifts = () =>
 export const createGift = (payload) =>
   api.post('/gifts', payload).then(r => r.data)
 
+// === Gift Images ===
+export const uploadGiftImage = (id, file) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return api
+    .post(`/gifts/${id}/image`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then(r => r.data);
+};
+
+export const deleteGiftImage = (id) =>
+  api.delete(`/gifts/${id}/image`).then(r => r.data);
+
 export const updateGift = (id, payload) =>
   api.patch(`/gifts/${id}`, payload).then(r => r.data)
 

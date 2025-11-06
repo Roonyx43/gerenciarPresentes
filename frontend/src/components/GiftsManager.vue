@@ -7,29 +7,12 @@
       </div>
     </div>
 
-    <form
-      class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5"
-      @submit.prevent="create"
-    >
-      <input
-        v-model="form.name"
-        type="text"
-        placeholder="Nome do presente"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
-        required
-      />
-      <input
-        v-model.number="form.goal_amount"
-        type="number"
-        step="0.01"
-        min="0"
-        placeholder="Meta (R$)"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
-        required
-      />
-      <button
-        class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm"
-      >
+    <form class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5" @submit.prevent="create">
+      <input v-model="form.name" type="text" placeholder="Nome do presente"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
+      <input v-model.number="form.goal_amount" type="number" step="0.01" min="0" placeholder="Meta (R$)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
+      <button class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm">
         Adicionar
       </button>
     </form>
@@ -41,24 +24,16 @@
     </div>
 
     <div v-else class="grid sm:grid-cols-3 gap-4">
-      <article
-        v-for="g in gifts"
-        :key="g.id"
-        class="border-2 border-blue-300 rounded-sm p-4 bg-white shadow-sm"
-      >
+      <article v-for="g in gifts" :key="g.id" class="border-2 border-blue-300 rounded-sm p-4 bg-white shadow-sm">
         <div class="flex items-start justify-between mb-3">
           <div>
             <h3 class="font-semibold text-blue-500">{{ g.name }}</h3>
             <div class="text-xs text-gray-500">ID {{ g.id }}</div>
           </div>
-          <span
-            class="badge"
-            :class="
-              g.is_active
-                ? 'border-green-200 bg-green-50 text-green-700 p-1'
-                : 'border-red-200 bg-red-50 text-red-600 p-1'
-            "
-          >
+          <span class="badge" :class="g.is_active
+            ? 'border-green-200 bg-green-50 text-green-700 p-1'
+            : 'border-red-200 bg-red-50 text-red-600 p-1'
+            ">
             {{ g.is_active ? "Ativo" : "Inativo" }}
           </span>
         </div>
@@ -76,23 +51,63 @@
           </div>
         </dl>
 
+        <!-- Imagem do presente (preview + ações) -->
+        <div class="mt-3">
+          <!-- Com imagem -->
+          <div v-if="g.img" class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-full overflow-hidden ring-[3px] ring-offset-[2px]"
+                style="--tw-ring-color:#8a9479; --tw-ring-offset-color:#f6f3ee;" title="Imagem do presente">
+                <img :src="g.img" alt="" class="w-full h-full object-cover" />
+              </div>
+              <div class="text-xs text-gray-500 hidden sm:block">Imagem atual</div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- Trocar: abre input file escondido -->
+              <label :for="'file-' + g.id"
+                class="px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer">Trocar</label>
+
+              <button class="px-3 py-1.5 rounded bg-red-500 text-white text-xs hover:bg-red-600"
+                @click="removeImage(g)">
+                Remover
+              </button>
+            </div>
+
+            <input class="hidden" type="file" :id="'file-' + g.id" accept="image/*"
+              @change="e => uploadImage(g, e.target.files?.[0])" />
+          </div>
+
+          <!-- Sem imagem -->
+          <div v-else class="flex items-center justify-between">
+            <span class="text-xs text-gray-500">Sem imagem</span>
+
+            <label :for="'file-' + g.id"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer">
+              <!-- ícone de upload -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4.007 4.007a1 1 0 0 1-1.414 0L7.279 10.707a1 1 0 1 1 1.414-1.414L11 11.586V4a1 1 0 0 1 1-1z" />
+                <path d="M5 19a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h14v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H5z" />
+              </svg>
+              Selecionar imagem
+            </label>
+
+            <input class="hidden" type="file" :id="'file-' + g.id" accept="image/*"
+              @change="e => uploadImage(g, e.target.files?.[0])" />
+          </div>
+
+          <div v-if="uploading === g.id" class="mt-1 text-[11px] text-gray-500">Enviando...</div>
+        </div>
+
         <div class="progress mb-3" :title="`${pct(g)}%`">
           <span :style="{ width: pct(g) + '%' }"></span>
         </div>
         <!-- substitui a div do texto -->
         <div class="w-full">
-          <div
-            class="relative h-2 w-full overflow-hidden rounded bg-gray-200"
-            role="progressbar"
-            :aria-valuenow="pct(g)"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :title="`${pct(g)}%`"
-          >
-            <div
-              class="h-full bg-blue-500 transition-[width] duration-700 ease-out"
-              :style="{ width: pct(g) + '%' }"
-            />
+          <div class="relative h-2 w-full overflow-hidden rounded bg-gray-200" role="progressbar"
+            :aria-valuenow="pct(g)" aria-valuemin="0" aria-valuemax="100" :title="`${pct(g)}%`">
+            <div class="h-full bg-blue-500 transition-[width] duration-700 ease-out" :style="{ width: pct(g) + '%' }" />
           </div>
           <div class="mt-1 text-[11px] leading-4 text-gray-600">
             {{ pct(g) }}% da meta
@@ -100,35 +115,24 @@
         </div>
 
         <div class="flex flex-wrap gap-2 justify-between p-2">
-          <button
-            class="btn btn-ghost bg-orange-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="toggleActive(g)"
-          >
+          <button class="btn btn-ghost bg-orange-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            @click="toggleActive(g)">
             {{ g.is_active ? "Desativar" : "Ativar" }}
           </button>
-          <button
-            class="btn btn-ghost bg-blue-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="editGoal(g)"
-          >
+          <button class="btn btn-ghost bg-blue-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            @click="editGoal(g)">
             Editar meta
           </button>
-          <button
-            class="btn btn-danger bg-red-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="askDelete(g)"
-          >
+          <button class="btn btn-danger bg-red-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            @click="askDelete(g)">
             Excluir
           </button>
         </div>
       </article>
     </div>
 
-    <Modal
-      :open="modal.open"
-      title="Excluir gift"
-      confirm-text="Excluir"
-      @close="modal.open = false"
-      @confirm="removeGift(modal.id)"
-    >
+    <Modal :open="modal.open" title="Excluir gift" confirm-text="Excluir" @close="modal.open = false"
+      @confirm="removeGift(modal.id)">
       Ao excluir, gifts com contributions vinculadas podem falhar por restrição
       de chave estrangeira.
     </Modal>
@@ -137,7 +141,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { listGifts, createGift, updateGift, deleteGift } from "../api";
+import {
+  listGifts, createGift, updateGift, deleteGift,
+  uploadGiftImage, deleteGiftImage, // 👈 importa
+} from "../api";
 import { useToasts } from "../composables/useToasts";
 import Modal from "./Modal.vue";
 
@@ -146,6 +153,7 @@ const gifts = ref([]);
 const loading = ref(false);
 const form = ref({ name: "", goal_amount: "" });
 const modal = ref({ open: false, id: null });
+const uploading = ref(null);
 
 const load = async () => {
   loading.value = true;
@@ -192,9 +200,7 @@ const editGoal = async (g) => {
   }
 };
 
-const askDelete = (g) => {
-  modal.value = { open: true, id: g.id };
-};
+const askDelete = (g) => { modal.value = { open: true, id: g.id }; };
 const removeGift = async (id) => {
   try {
     gifts.value = await deleteGift(id);
@@ -214,6 +220,31 @@ const pct = (g) => {
   return isFinite(p) ? p : 0;
 };
 const n = (v) => Number(v).toFixed(2);
+
+// === Upload via backend ===
+async function uploadImage(g, file) {
+  if (!file) return;
+  uploading.value = g.id;
+  try {
+    gifts.value = await uploadGiftImage(g.id, file); // 👈 axios + baseURL certa
+    show({ title: "Imagem atualizada!" });
+  } catch (e) {
+    console.error(e);
+    show({ type: "error", title: "Falha no upload da imagem" });
+  } finally {
+    uploading.value = null;
+  }
+}
+
+async function removeImage(g) {
+  try {
+    gifts.value = await deleteGiftImage(g.id); // 👈 axios + baseURL certa
+    show({ title: "Imagem removida" });
+  } catch (e) {
+    console.error(e);
+    show({ type: "error", title: "Falha ao remover imagem" });
+  }
+}
 
 onMounted(load);
 </script>

@@ -7,7 +7,7 @@ export const SELECT_CONTRIBUTIONS = `
 `;
 
 export const SELECT_GIFTS = `
-  SELECT id, name, goal_amount, received_amount, is_active
+  SELECT id, name, goal_amount, received_amount, is_active, img
   FROM public.gifts
   ORDER BY id DESC
 `;
