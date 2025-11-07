@@ -7,10 +7,12 @@
       </div>
     </div>
 
-    <form class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5" @submit.prevent="create">
+    <form class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5" @submit.prevent="create">
       <input v-model="form.name" type="text" placeholder="Nome do presente"
         class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
       <input v-model.number="form.goal_amount" type="number" step="0.01" min="0" placeholder="Meta (R$)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
+      <input v-model="form.descricao" type="text" placeholder="Descrição"
         class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
       <button class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm">
         Adicionar
@@ -28,7 +30,7 @@
         <div class="flex items-start justify-between mb-3">
           <div>
             <h3 class="font-semibold text-blue-500">{{ g.name }}</h3>
-            <div class="text-xs text-gray-500">ID {{ g.id }}</div>
+            <div class="text-xs text-gray-500">{{ g.descricao }}</div>
           </div>
           <span class="badge" :class="g.is_active
             ? 'border-green-200 bg-green-50 text-green-700 p-1'
@@ -151,7 +153,7 @@ import Modal from "./Modal.vue";
 const { show } = useToasts();
 const gifts = ref([]);
 const loading = ref(false);
-const form = ref({ name: "", goal_amount: "" });
+const form = ref({ name: "", goal_amount: "", descricao: "" });
 const modal = ref({ open: false, id: null });
 const uploading = ref(null);
 
@@ -170,8 +172,9 @@ const create = async () => {
     gifts.value = await createGift({
       name: form.value.name,
       goal_amount: form.value.goal_amount,
+      descricao: form.value.descricao
     });
-    form.value = { name: "", goal_amount: "" };
+    form.value = { name: "", goal_amount: "", descricao: "" };
     show({ title: "Gift criado!" });
   } catch {
     show({ type: "error", title: "Falha ao criar gift" });

@@ -1,4 +1,4 @@
-import express from "express";
+import express, { raw } from "express";
 import multer from "multer";
 import { q } from "../db.js";
 import { SELECT_GIFTS } from "../utils/sql.js";
@@ -53,7 +53,8 @@ router.get("/", async (_req, res) => {
    received_amount inicia 0, is_active true
 ========================= */
 router.post("/", async (req, res) => {
-  const { name, goal_amount, img } = req.body || {};
+  console.log("POST /gifts body:", JSON.stringify(req.body));
+  const { name, goal_amount, img, descricao } = req.body || {};
 
   if (!name || typeof name !== "string" || !name.trim()) {
     return httpError(res, 400, "name é obrigatório");
@@ -63,11 +64,14 @@ router.post("/", async (req, res) => {
     return httpError(res, 400, "goal_amount inválido");
   }
 
+  const rawDesc = typeof descricao === "string" ? descricao.trim() : null;
+  const desc = rawDesc && rawDesc.length ? rawDesc : null;
+
   try {
     await q(
-      `INSERT INTO public.gifts (name, goal_amount, received_amount, is_active, img)
-       VALUES ($1, $2, 0, true, $3)`,
-      [name.trim(), goal, img || null]
+      `INSERT INTO public.gifts (name, goal_amount, received_amount, is_active, img, descricao)
+       VALUES ($1, $2, 0, true, $3, $4)`,
+      [name.trim(), goal, img || null, desc]
     );
     const { rows } = await q(SELECT_GIFTS);
     res.status(201).json(rows);
@@ -85,7 +89,7 @@ router.patch("/:id", async (req, res) => {
   const { id } = req.params;
   if (!isIdValid(id)) return httpError(res, 400, "id inválido");
 
-  const { is_active, goal_amount, img } = req.body || {};
+  const { is_active, goal_amount, img, descricao } = req.body || {};
 
   const sets = [];
   const vals = [];
@@ -110,6 +114,15 @@ router.patch("/:id", async (req, res) => {
     }
     sets.push(`img = $${i++}`);
     vals.push(img || null);
+  }
+
+  if (descricao !== undefined) {
+    if (descricao !== null && typeof descricao !== "string") {
+      return httpError(res, 400, "descricao deve ser string ou null");
+    }
+    const d = descricao === null ? null : descricao.trim();
+    sets.push(`descricao = $${i++}`);
+    vals.push(d && d.length ? d : null);
   }
 
   if (sets.length === 0) {

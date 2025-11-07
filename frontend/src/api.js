@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Ajuste o BASE_URL se o backend rodar em outro host ou porta
 export const api = axios.create({
-  baseURL: 'https://gerenciarpresentes-production.up.railway.app/api'
+  baseURL: 'http://localhost:3000/api'
 })
 
 // === Contributions ===
