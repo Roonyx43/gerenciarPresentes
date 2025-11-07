@@ -116,7 +116,7 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 justify-between p-2">
+        <div class="grid grid-cols-2 text-center gap-4 p-1">
           <button class="btn btn-ghost bg-orange-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
             @click="toggleActive(g)">
             {{ g.is_active ? "Desativar" : "Ativar" }}
@@ -128,6 +128,10 @@
           <button class="btn btn-danger bg-red-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
             @click="askDelete(g)">
             Excluir
+          </button>
+          <button class="btn btn-ghost bg-indigo-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            @click="editDesc(g)">
+            Editar descrição
           </button>
         </div>
       </article>
@@ -200,6 +204,21 @@ const editGoal = async (g) => {
     show({ title: "Meta atualizada" });
   } catch {
     show({ type: "error", title: "Falha ao atualizar meta" });
+  }
+};
+
+const editDesc = async (g) => {
+  const atual = (g.descricao ?? "").toString();
+  const novo = prompt("Nova descrição:", atual);
+  if (novo == null) return; // cancelou
+  const desc = novo.trim();
+  // opcional: valida tamanho
+  if (desc.length > 1000) return alert("Descrição muito longa (máx 1000).");
+  try {
+    gifts.value = await updateGift(g.id, { descricao: desc || null });
+    show({ title: "Descrição atualizada" });
+  } catch {
+    show({ type: "error", title: "Falha ao atualizar descrição" });
   }
 };
 
