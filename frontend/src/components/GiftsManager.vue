@@ -267,7 +267,7 @@
           </button>
 
           <button
-            class="btn btn-ghost bg-green-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            class="btn col-span-full btn-ghost bg-green-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
             @click="concluir(g)"
             :title="g.concluido === 'X' ? 'Reabrir' : 'Concluir'"
           >
