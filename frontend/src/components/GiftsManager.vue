@@ -8,7 +8,7 @@
     </div>
 
     <form
-      class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5"
+      class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5"
       @submit.prevent="create"
     >
       <input
@@ -24,13 +24,6 @@
         step="0.01"
         min="0"
         placeholder="Meta (R$)"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
-        required
-      />
-      <input
-        v-model="form.descricao"
-        type="text"
-        placeholder="Descrição"
         class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
         required
       />
@@ -271,19 +264,6 @@
             :title="isLocked(g) ? 'Concluído: reabra para excluir' : 'Excluir'"
           >
             Excluir
-          </button>
-
-          <button
-            class="btn btn-ghost bg-indigo-400 p-2 rounded-sm shadow-sm text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="!isLocked(g) && editDesc(g)"
-            :disabled="isLocked(g)"
-            :title="
-              isLocked(g)
-                ? 'Concluído: reabra para alterar'
-                : 'Editar descrição'
-            "
-          >
-            Editar descrição
           </button>
 
           <button
