@@ -89,7 +89,7 @@ router.patch("/:id", async (req, res) => {
   const { id } = req.params;
   if (!isIdValid(id)) return httpError(res, 400, "id inválido");
 
-  const { is_active, goal_amount, img, descricao } = req.body || {};
+  const { is_active, goal_amount, img, descricao, concluido } = req.body || {};
 
   const sets = [];
   const vals = [];
@@ -123,6 +123,18 @@ router.patch("/:id", async (req, res) => {
     const d = descricao === null ? null : descricao.trim();
     sets.push(`descricao = $${i++}`);
     vals.push(d && d.length ? d : null);
+  }
+
+  // ✅ NOVO: concluir/reabrir
+  if (concluido !== undefined) {
+    // Aceita 'X', null ou "" (vazio). Qualquer outra coisa -> 400
+    let value = null;
+    if (concluido === "X") value = "X";
+    else if (concluido === null || concluido === "") value = null;
+    else return httpError(res, 400, "concluido deve ser 'X' ou null/vazio");
+
+    sets.push(`concluido = $${i++}`);
+    vals.push(value);
   }
 
   if (sets.length === 0) {

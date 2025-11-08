@@ -7,14 +7,36 @@
       </div>
     </div>
 
-    <form class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5" @submit.prevent="create">
-      <input v-model="form.name" type="text" placeholder="Nome do presente"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
-      <input v-model.number="form.goal_amount" type="number" step="0.01" min="0" placeholder="Meta (R$)"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
-      <input v-model="form.descricao" type="text" placeholder="Descrição"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm" required />
-      <button class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm">
+    <form
+      class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5"
+      @submit.prevent="create"
+    >
+      <input
+        v-model="form.name"
+        type="text"
+        placeholder="Nome do presente"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
+        required
+      />
+      <input
+        v-model.number="form.goal_amount"
+        type="number"
+        step="0.01"
+        min="0"
+        placeholder="Meta (R$)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
+        required
+      />
+      <input
+        v-model="form.descricao"
+        type="text"
+        placeholder="Descrição"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
+        required
+      />
+      <button
+        class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm"
+      >
         Adicionar
       </button>
     </form>
@@ -26,17 +48,33 @@
     </div>
 
     <div v-else class="grid sm:grid-cols-3 gap-4">
-      <article v-for="g in gifts" :key="g.id" class="border-2 border-blue-300 rounded-sm p-4 bg-white shadow-sm">
+      <article
+        v-for="g in gifts"
+        :key="g.id"
+        class="border-2 border-blue-300 rounded-sm p-4 bg-white shadow-sm"
+      >
         <div class="flex items-start justify-between mb-3">
           <div>
-            <h3 class="font-semibold text-blue-500">{{ g.name }}</h3>
+            <h3
+              class="font-semibold"
+              :class="
+                g.concluido === 'X'
+                  ? 'text-gray-400 line-through'
+                  : 'text-blue-500'
+              "
+            >
+              {{ g.name }}
+            </h3>
             <div class="text-xs text-gray-500">{{ g.descricao }}</div>
           </div>
-          <span class="badge" :class="g.is_active
-            ? 'border-green-200 bg-green-50 text-green-700 p-1'
-            : 'border-red-200 bg-red-50 text-red-600 p-1'
-            ">
-            {{ g.is_active ? "Ativo" : "Inativo" }}
+
+          <!-- só mostra o chip 'Concluído' -->
+          <span
+            v-if="g.concluido === 'X'"
+            class="border-blue-200 bg-blue-50 text-blue-700 p-1 rounded text-xs"
+            title="Este presente foi concluído"
+          >
+            Concluído
           </span>
         </div>
 
@@ -58,87 +96,214 @@
           <!-- Com imagem -->
           <div v-if="g.img" class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-14 h-14 rounded-full overflow-hidden ring-[3px] ring-offset-[2px]"
-                style="--tw-ring-color:#8a9479; --tw-ring-offset-color:#f6f3ee;" title="Imagem do presente">
-                <img :src="g.img" alt="" class="w-full h-full object-cover" />
+              <div
+                class="w-14 h-14 rounded-full overflow-hidden ring-[3px] ring-offset-[2px]"
+                style="
+                  --tw-ring-color: #8a9479;
+                  --tw-ring-offset-color: #f6f3ee;
+                "
+                title="Imagem do presente"
+              >
+                <img
+                  :src="g.img"
+                  alt=""
+                  class="w-full h-full object-cover"
+                  :class="isLocked(g) ? 'grayscale contrast-75 opacity-75' : ''"
+                />
               </div>
-              <div class="text-xs text-gray-500 hidden sm:block">Imagem atual</div>
+              <div class="text-xs text-gray-500 hidden sm:block">
+                Imagem atual
+              </div>
             </div>
 
             <div class="flex items-center gap-2">
-              <!-- Trocar: abre input file escondido -->
-              <label :for="'file-' + g.id"
-                class="px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer">Trocar</label>
+              <!-- Trocar -->
+              <label
+                :for="'file-' + g.id"
+                class="px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer"
+                :class="
+                  isLocked(g)
+                    ? 'opacity-50 pointer-events-none cursor-not-allowed'
+                    : ''
+                "
+                :title="
+                  isLocked(g)
+                    ? 'Concluído: reabra para alterar a imagem'
+                    : 'Trocar imagem'
+                "
+                >Trocar</label
+              >
 
-              <button class="px-3 py-1.5 rounded bg-red-500 text-white text-xs hover:bg-red-600 cursor-pointer"
-                @click="removeImage(g)">
+              <button
+                class="px-3 py-1.5 rounded bg-red-500 text-white text-xs hover:bg-red-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                @click="!isLocked(g) && removeImage(g)"
+                :disabled="isLocked(g)"
+                :title="
+                  isLocked(g)
+                    ? 'Concluído: reabra para remover'
+                    : 'Remover imagem'
+                "
+              >
                 Remover
               </button>
             </div>
 
-            <input class="hidden" type="file" :id="'file-' + g.id" accept="image/*"
-              @change="e => uploadImage(g, e.target.files?.[0])" />
+            <input
+              class="hidden"
+              type="file"
+              :id="'file-' + g.id"
+              accept="image/*"
+              @change="(e) => uploadImage(g, e.target.files?.[0])"
+              :disabled="isLocked(g)"
+            />
           </div>
 
           <!-- Sem imagem -->
           <div v-else class="flex items-center justify-between">
             <span class="text-xs text-gray-500">Sem imagem</span>
 
-            <label :for="'file-' + g.id"
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer">
-              <!-- ícone de upload -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+            <label
+              :for="'file-' + g.id"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-700 text-white text-xs hover:bg-emerald-800 cursor-pointer"
+              :class="
+                isLocked(g)
+                  ? 'opacity-50 pointer-events-none cursor-not-allowed'
+                  : ''
+              "
+              :title="
+                isLocked(g)
+                  ? 'Concluído: reabra para adicionar imagem'
+                  : 'Selecionar imagem'
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path
-                  d="M12 3a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4.007 4.007a1 1 0 0 1-1.414 0L7.279 10.707a1 1 0 1 1 1.414-1.414L11 11.586V4a1 1 0 0 1 1-1z" />
-                <path d="M5 19a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h14v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H5z" />
+                  d="M12 3a1 1 0 0 1 1 1v7.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4.007 4.007a1 1 0 0 1-1.414 0L7.279 10.707a1 1 0 1 1 1.414-1.414L11 11.586V4a1 1 0 0 1 1-1z"
+                />
+                <path
+                  d="M5 19a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h14v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H5z"
+                />
               </svg>
               Selecionar imagem
             </label>
 
-            <input class="hidden" type="file" :id="'file-' + g.id" accept="image/*"
-              @change="e => uploadImage(g, e.target.files?.[0])" />
+            <input
+              class="hidden"
+              type="file"
+              :id="'file-' + g.id"
+              accept="image/*"
+              @change="(e) => uploadImage(g, e.target.files?.[0])"
+              :disabled="isLocked(g)"
+            />
           </div>
 
-          <div v-if="uploading === g.id" class="mt-1 text-[11px] text-gray-500">Enviando...</div>
+          <div v-if="uploading === g.id" class="mt-1 text-[11px] text-gray-500">
+            Enviando...
+          </div>
         </div>
 
-        <div class="progress mb-3" :title="`${pct(g)}%`">
-          <span :style="{ width: pct(g) + '%' }"></span>
-        </div>
-        <!-- substitui a div do texto -->
-        <div class="w-full">
-          <div class="relative h-2 w-full overflow-hidden rounded bg-gray-200" role="progressbar"
-            :aria-valuenow="pct(g)" aria-valuemin="0" aria-valuemax="100" :title="`${pct(g)}%`">
-            <div class="h-full bg-blue-500 transition-[width] duration-700 ease-out" :style="{ width: pct(g) + '%' }" />
+        <!-- Status visual -->
+        <div class="w-full my-2">
+          <!-- Concluído: ícone de check -->
+          <div
+            v-if="g.concluido === 'X'"
+            class="flex items-center justify-center gap-2 text-green-600"
+          >
+            <!-- check circle -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2.25a9.75 9.75 0 1 0 0 19.5 9.75 9.75 0 0 0 0-19.5Zm4.03 6.97a.75.75 0 0 1 0 1.06l-5.5 5.5a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 1.06-1.06l1.72 1.72 4.97-4.97a.75.75 0 0 1 1.06 0Z"
+              />
+            </svg>
+            <span class="text-sm text-center font-medium">Concluído</span>
           </div>
-          <div class="mt-1 text-[11px] leading-4 text-gray-600">
-            {{ pct(g) }}% da meta
+
+          <!-- Em aberto: barra de progresso -->
+          <div v-else>
+            <div
+              class="relative h-2 w-full overflow-hidden rounded bg-gray-200"
+              role="progressbar"
+              :aria-valuenow="pct(g)"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :title="`${pct(g)}%`"
+            >
+              <div
+                class="h-full bg-blue-500 transition-[width] duration-700 ease-out"
+                :style="{ width: pct(g) + '%' }"
+              />
+            </div>
+            <div class="mt-1 text-[11px] leading-4 text-gray-600">
+              {{ pct(g) }}% da meta
+            </div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 text-center gap-4 p-1">
-          <button class="btn btn-ghost bg-orange-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="toggleActive(g)">
-            {{ g.is_active ? "Desativar" : "Ativar" }}
-          </button>
-          <button class="btn btn-ghost bg-blue-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="editGoal(g)">
+
+
+          <button
+            class="btn btn-ghost bg-blue-400 p-2 rounded-sm shadow-sm text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="!isLocked(g) && editGoal(g)"
+            :disabled="isLocked(g)"
+            :title="
+              isLocked(g) ? 'Concluído: reabra para alterar' : 'Editar meta'
+            "
+          >
             Editar meta
           </button>
-          <button class="btn btn-danger bg-red-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="askDelete(g)">
+
+          <button
+            class="btn btn-danger bg-red-400 p-2 rounded-sm shadow-sm text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="!isLocked(g) && askDelete(g)"
+            :disabled="isLocked(g)"
+            :title="isLocked(g) ? 'Concluído: reabra para excluir' : 'Excluir'"
+          >
             Excluir
           </button>
-          <button class="btn btn-ghost bg-indigo-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
-            @click="editDesc(g)">
+
+          <button
+            class="btn btn-ghost bg-indigo-400 p-2 rounded-sm shadow-sm text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="!isLocked(g) && editDesc(g)"
+            :disabled="isLocked(g)"
+            :title="
+              isLocked(g)
+                ? 'Concluído: reabra para alterar'
+                : 'Editar descrição'
+            "
+          >
             Editar descrição
+          </button>
+
+          <button
+            class="btn btn-ghost bg-green-400 p-2 rounded-sm shadow-sm text-white cursor-pointer"
+            @click="concluir(g)"
+            :title="g.concluido === 'X' ? 'Reabrir' : 'Concluir'"
+          >
+            {{ g.concluido === "X" ? "Reabrir" : "Concluir" }}
           </button>
         </div>
       </article>
     </div>
 
-    <Modal :open="modal.open" title="Excluir gift" confirm-text="Excluir" @close="modal.open = false"
-      @confirm="removeGift(modal.id)">
+    <Modal
+      :open="modal.open"
+      title="Excluir gift"
+      confirm-text="Excluir"
+      @close="modal.open = false"
+      @confirm="removeGift(modal.id)"
+    >
       Ao excluir, gifts com contributions vinculadas podem falhar por restrição
       de chave estrangeira.
     </Modal>
@@ -148,8 +313,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import {
-  listGifts, createGift, updateGift, deleteGift,
-  uploadGiftImage, deleteGiftImage, // 👈 importa
+  listGifts,
+  createGift,
+  updateGift,
+  deleteGift,
+  uploadGiftImage,
+  deleteGiftImage, // 👈 importa
 } from "../api";
 import { useToasts } from "../composables/useToasts";
 import Modal from "./Modal.vue";
@@ -176,7 +345,7 @@ const create = async () => {
     gifts.value = await createGift({
       name: form.value.name,
       goal_amount: form.value.goal_amount,
-      descricao: form.value.descricao
+      descricao: form.value.descricao,
     });
     form.value = { name: "", goal_amount: "", descricao: "" };
     show({ title: "Gift criado!" });
@@ -191,6 +360,21 @@ const toggleActive = async (g) => {
     show({ title: g.is_active ? "Gift desativado" : "Gift ativado" });
   } catch {
     show({ type: "error", title: "Falha ao atualizar gift" });
+  }
+};
+
+const concluir = async (g) => {
+  // Se já está concluído, reabre (manda null/""), senão marca "X"
+  const proximoValor = g.concluido === "X" ? null : "X";
+
+  try {
+    gifts.value = await updateGift(g.id, { concluido: proximoValor });
+    show({
+      title: proximoValor === "X" ? "Gift concluído" : "Gift reaberto",
+    });
+  } catch (e) {
+    console.error(e);
+    show({ type: "error", title: "Falha ao atualizar conclusão" });
   }
 };
 
@@ -222,7 +406,9 @@ const editDesc = async (g) => {
   }
 };
 
-const askDelete = (g) => { modal.value = { open: true, id: g.id }; };
+const askDelete = (g) => {
+  modal.value = { open: true, id: g.id };
+};
 const removeGift = async (id) => {
   try {
     gifts.value = await deleteGift(id);
@@ -242,6 +428,8 @@ const pct = (g) => {
   return isFinite(p) ? p : 0;
 };
 const n = (v) => Number(v).toFixed(2);
+
+const isLocked = (g) => g?.concluido === "X";
 
 // === Upload via backend ===
 async function uploadImage(g, file) {
