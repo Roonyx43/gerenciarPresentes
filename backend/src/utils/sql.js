@@ -7,10 +7,21 @@ export const SELECT_CONTRIBUTIONS = `
 `;
 
 export const SELECT_GIFTS = `
-  SELECT id, name, goal_amount, received_amount, is_active, img, descricao, concluido
+  SELECT
+    id,
+    name,
+    goal_amount,
+    received_amount,
+    is_active,
+    img,
+    descricao,
+    especificacoes,
+    link_referencia,
+    concluido
   FROM public.gifts
   ORDER BY id DESC
 `;
+
 
 export const SELECT_TOP_CONTRIBUTORS = `
   SELECT

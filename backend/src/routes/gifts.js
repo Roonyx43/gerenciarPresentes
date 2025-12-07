@@ -49,12 +49,19 @@ router.get("/", async (_req, res) => {
 
 /* =========================
    POST /gifts
-   body: { name, goal_amount, img? }
+   body: { name, goal_amount, img?, descricao?, especificacoes?, link_referencia? }
    received_amount inicia 0, is_active true
 ========================= */
 router.post("/", async (req, res) => {
   console.log("POST /gifts body:", JSON.stringify(req.body));
-  const { name, goal_amount, img, descricao } = req.body || {};
+  const {
+    name,
+    goal_amount,
+    img,
+    descricao,
+    especificacoes,
+    link_referencia,
+  } = req.body || {};
 
   if (!name || typeof name !== "string" || !name.trim()) {
     return httpError(res, 400, "name é obrigatório");
@@ -64,14 +71,26 @@ router.post("/", async (req, res) => {
     return httpError(res, 400, "goal_amount inválido");
   }
 
+  // descrição
   const rawDesc = typeof descricao === "string" ? descricao.trim() : null;
   const desc = rawDesc && rawDesc.length ? rawDesc : null;
 
+  // especificações
+  const rawSpecs =
+    typeof especificacoes === "string" ? especificacoes.trim() : null;
+  const specs = rawSpecs && rawSpecs.length ? rawSpecs : null;
+
+  // link de referência
+  const rawLink =
+    typeof link_referencia === "string" ? link_referencia.trim() : null;
+  const link = rawLink && rawLink.length ? rawLink : null;
+
   try {
     await q(
-      `INSERT INTO public.gifts (name, goal_amount, received_amount, is_active, img, descricao)
-       VALUES ($1, $2, 0, true, $3, $4)`,
-      [name.trim(), goal, img || null, desc]
+      `INSERT INTO public.gifts
+         (name, goal_amount, received_amount, is_active, img, descricao, especificacoes, link_referencia)
+       VALUES ($1,   $2,          0,              true,     $3,  $4,        $5,             $6)`,
+      [name.trim(), goal, img || null, desc, specs, link]
     );
     const { rows } = await q(SELECT_GIFTS);
     res.status(201).json(rows);
@@ -83,13 +102,22 @@ router.post("/", async (req, res) => {
 
 /* =========================
    PATCH /gifts/:id
-   body: { is_active?, goal_amount?, img? }
+   body: { is_active?, goal_amount?, img?, descricao?, concluido?, especificacoes?, link_referencia? }
 ========================= */
 router.patch("/:id", async (req, res) => {
   const { id } = req.params;
+  console.log("PATCH /gifts/:id body:", req.body);
   if (!isIdValid(id)) return httpError(res, 400, "id inválido");
 
-  const { is_active, goal_amount, img, descricao, concluido } = req.body || {};
+  const {
+    is_active,
+    goal_amount,
+    img,
+    descricao,
+    concluido,
+    especificacoes,
+    link_referencia,
+  } = req.body || {};
 
   const sets = [];
   const vals = [];
@@ -116,6 +144,7 @@ router.patch("/:id", async (req, res) => {
     vals.push(img || null);
   }
 
+  // descrição
   if (descricao !== undefined) {
     if (descricao !== null && typeof descricao !== "string") {
       return httpError(res, 400, "descricao deve ser string ou null");
@@ -125,7 +154,27 @@ router.patch("/:id", async (req, res) => {
     vals.push(d && d.length ? d : null);
   }
 
-  // ✅ NOVO: concluir/reabrir
+  // ✅ NOVO: especificações
+  if (especificacoes !== undefined) {
+    if (especificacoes !== null && typeof especificacoes !== "string") {
+      return httpError(res, 400, "especificacoes deve ser string ou null");
+    }
+    const s = especificacoes === null ? null : especificacoes.trim();
+    sets.push(`especificacoes = $${i++}`);
+    vals.push(s && s.length ? s : null);
+  }
+
+  // ✅ NOVO: link_referencia
+  if (link_referencia !== undefined) {
+    if (link_referencia !== null && typeof link_referencia !== "string") {
+      return httpError(res, 400, "link_referencia deve ser string ou null");
+    }
+    const l = link_referencia === null ? null : link_referencia.trim();
+    sets.push(`link_referencia = $${i++}`);
+    vals.push(l && l.length ? l : null);
+  }
+
+  // concluir/reabrir
   if (concluido !== undefined) {
     // Aceita 'X', null ou "" (vazio). Qualquer outra coisa -> 400
     let value = null;
@@ -156,6 +205,7 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
+
 /* =========================
    POST /gifts/:id/image
    multipart/form-data: campo "file"
@@ -177,7 +227,7 @@ router.post("/:id/image", upload.single("file"), async (req, res) => {
       /[^\w.-]/g,
       "_"
     );
-    const filename = `Casamento/${id}/${Date.now()}-${original}`; // 👈 pasta Casamento
+    const filename = `Casamento/${id}/${Date.now()}-${original}`;
     const file = bucket.file(filename);
 
     await file.save(req.file.buffer, {
@@ -227,7 +277,6 @@ router.delete("/:id/image", async (req, res) => {
 
       if (byGcs && byGcs[1] === bucket.name) objectPath = byGcs[2];
       if (!objectPath && byCname && byCname[1]) {
-        // compat: d-a-dext-50c31 vs d-a-dext-50c31.appspot.com
         const cname = byCname[1];
         if (bucket.name.startsWith(cname)) objectPath = byCname[2];
       }
@@ -265,7 +314,11 @@ router.delete("/:id", async (req, res) => {
     res.json(rows);
   } catch (e) {
     console.error("DELETE /gifts/:id error:", e);
-    httpError(res, 500, "Erro ao excluir gift (verifique FK em contributions)");
+    httpError(
+      res,
+      500,
+      "Erro ao excluir gift (verifique FK em contributions)"
+    );
   }
 });
 

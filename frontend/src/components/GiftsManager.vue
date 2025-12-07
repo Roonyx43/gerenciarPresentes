@@ -7,6 +7,7 @@
       </div>
     </div>
 
+    <!-- FORM DE CRIAÇÃO -->
     <form
       class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5"
       @submit.prevent="create"
@@ -15,25 +16,49 @@
         v-model="form.name"
         type="text"
         placeholder="Nome do presente"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm md:col-span-1"
         required
       />
+
       <input
         v-model.number="form.goal_amount"
         type="number"
         step="0.01"
         min="0"
         placeholder="Meta (R$)"
-        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm md:col-span-1"
         required
       />
+
+      <input
+        v-model="form.descricao"
+        type="text"
+        placeholder="Descrição (opcional)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm md:col-span-1"
+      />
+
+      <input
+        v-model="form.especificacoes"
+        type="text"
+        placeholder="Especificações (opcional)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm md:col-span-2"
+      />
+
+      <input
+        v-model="form.link_referencia"
+        type="url"
+        placeholder="Link de referência (opcional)"
+        class="input border-2 border-blue-300 rounded-sm p-2 shadow-sm md:col-span-1"
+      />
+
       <button
-        class="btn btn-primary bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm"
+        class="flex items-center justify-center w-full bg-blue-400 text-white py-2 rounded-sm shadow-sm cursor-pointer md:col-span-3"
       >
         Adicionar
       </button>
     </form>
 
+    <!-- LISTA -->
     <div v-if="loading" class="empty">Carregando Lista de Presentes...</div>
 
     <div v-else-if="gifts.length === 0" class="empty">
@@ -58,7 +83,104 @@
             >
               {{ g.name }}
             </h3>
-            <div class="text-xs text-gray-500">{{ g.descricao }}</div>
+
+            <div class="text-xs text-gray-500">
+              {{ g.descricao }}
+            </div>
+
+            <div v-if="g.especificacoes" class="mt-1 text-[11px] text-gray-600">
+              <span class="font-semibold">Especificações: </span>
+              {{ g.especificacoes }}
+            </div>
+
+            <div v-if="g.link_referencia" class="mt-1 text-[11px]">
+              <a
+                :href="g.link_referencia"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 underline"
+              >
+                Ver link de referência
+              </a>
+            </div>
+
+            <!-- ações de edição de texto -->
+            <!-- ações de edição de texto -->
+            <!-- ações de edição de texto (mais bonitinhas 😄) -->
+            <div class="mt-2">
+              <span class="block text-[11px] text-gray-400 mb-1">
+                Texto do presente
+              </span>
+
+              <div class="flex flex-wrap gap-2">
+                <!-- Descrição -->
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] text-blue-700 hover:bg-blue-100 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="!isLocked(g) && editDesc(g)"
+                  :disabled="isLocked(g)"
+                  title="Editar descrição"
+                >
+                  <!-- ícone lápis -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.25 8.25a2 2 0 0 1-.878.518l-3 0.75a.5.5 0 0 1-.606-.606l.75-3a2 2 0 0 1 .518-.878l8.25-8.25Z"
+                    />
+                  </svg>
+                  <span>Descrição</span>
+                </button>
+
+                <!-- Especificações -->
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] text-blue-700 hover:bg-blue-100 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="!isLocked(g) && editSpecs(g)"
+                  :disabled="isLocked(g)"
+                  title="Editar especificações"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.25 8.25a2 2 0 0 1-.878.518l-3 0.75a.5.5 0 0 1-.606-.606l.75-3a2 2 0 0 1 .518-.878l8.25-8.25Z"
+                    />
+                  </svg>
+                  <span>Especificações</span>
+                </button>
+
+                <!-- Link -->
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] text-blue-700 hover:bg-blue-100 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="!isLocked(g) && editLink(g)"
+                  :disabled="isLocked(g)"
+                  title="Editar link de referência"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-3.586 3.586a1 1 0 0 1-1.414-1.414l3.586-3.586Zm-3.172 3.172a1 1 0 0 1 0 1.414L6.828 11.76a2 2 0 0 1-.878.518l-2.25.562a.5.5 0 0 1-.606-.606l.562-2.25a2 2 0 0 1 .518-.878l3.586-3.586a1 1 0 0 1 1.414 0Z"
+                    />
+                  </svg>
+                  <span>Link</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- só mostra o chip 'Concluído' -->
@@ -244,8 +366,6 @@
         </div>
 
         <div class="grid grid-cols-2 text-center gap-4 p-1">
-
-
           <button
             class="btn btn-ghost bg-blue-400 p-2 rounded-sm shadow-sm text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             @click="!isLocked(g) && editGoal(g)"
@@ -298,15 +418,22 @@ import {
   updateGift,
   deleteGift,
   uploadGiftImage,
-  deleteGiftImage, // 👈 importa
+  deleteGiftImage,
 } from "../api";
 import { useToasts } from "../composables/useToasts";
 import Modal from "./Modal.vue";
 
 const { show } = useToasts();
+
 const gifts = ref([]);
 const loading = ref(false);
-const form = ref({ name: "", goal_amount: "", descricao: "" });
+const form = ref({
+  name: "",
+  goal_amount: "",
+  descricao: "",
+  especificacoes: "",
+  link_referencia: "",
+});
 const modal = ref({ open: false, id: null });
 const uploading = ref(null);
 
@@ -325,9 +452,19 @@ const create = async () => {
     gifts.value = await createGift({
       name: form.value.name,
       goal_amount: form.value.goal_amount,
-      descricao: form.value.descricao,
+      descricao: form.value.descricao || null,
+      especificacoes: form.value.especificacoes || null,
+      link_referencia: form.value.link_referencia || null,
     });
-    form.value = { name: "", goal_amount: "", descricao: "" };
+
+    form.value = {
+      name: "",
+      goal_amount: "",
+      descricao: "",
+      especificacoes: "",
+      link_referencia: "",
+    };
+
     show({ title: "Gift criado!" });
   } catch {
     show({ type: "error", title: "Falha ao criar gift" });
@@ -344,7 +481,6 @@ const toggleActive = async (g) => {
 };
 
 const concluir = async (g) => {
-  // Se já está concluído, reabre (manda null/""), senão marca "X"
   const proximoValor = g.concluido === "X" ? null : "X";
 
   try {
@@ -374,9 +510,8 @@ const editGoal = async (g) => {
 const editDesc = async (g) => {
   const atual = (g.descricao ?? "").toString();
   const novo = prompt("Nova descrição:", atual);
-  if (novo == null) return; // cancelou
+  if (novo == null) return;
   const desc = novo.trim();
-  // opcional: valida tamanho
   if (desc.length > 1000) return alert("Descrição muito longa (máx 1000).");
   try {
     gifts.value = await updateGift(g.id, { descricao: desc || null });
@@ -386,9 +521,40 @@ const editDesc = async (g) => {
   }
 };
 
+const editSpecs = async (g) => {
+  const atual = (g.especificacoes ?? "").toString();
+  const novo = prompt("Novas especificações:", atual);
+  if (novo == null) return;
+  const specs = novo.trim();
+  if (specs.length > 2000) return alert("Texto muito longo (máx 2000).");
+  try {
+    gifts.value = await updateGift(g.id, { especificacoes: specs || null });
+    show({ title: "Especificações atualizadas" });
+  } catch {
+    show({ type: "error", title: "Falha ao atualizar especificações" });
+  }
+};
+
+const editLink = async (g) => {
+  const atual = (g.link_referencia ?? "").toString();
+  const novo = prompt("Novo link de referência (URL):", atual);
+  if (novo == null) return;
+  const link = novo.trim();
+  if (link && !/^https?:\/\/.+/i.test(link)) {
+    return alert("Informe uma URL válida começando com http:// ou https://");
+  }
+  try {
+    gifts.value = await updateGift(g.id, { link_referencia: link || null });
+    show({ title: "Link atualizado" });
+  } catch {
+    show({ type: "error", title: "Falha ao atualizar link" });
+  }
+};
+
 const askDelete = (g) => {
   modal.value = { open: true, id: g.id };
 };
+
 const removeGift = async (id) => {
   try {
     gifts.value = await deleteGift(id);
@@ -407,16 +573,17 @@ const pct = (g) => {
   const p = Math.min(100, Math.round((got / goal) * 100));
   return isFinite(p) ? p : 0;
 };
+
 const n = (v) => Number(v).toFixed(2);
 
 const isLocked = (g) => g?.concluido === "X";
 
-// === Upload via backend ===
+// upload de imagem
 async function uploadImage(g, file) {
   if (!file) return;
   uploading.value = g.id;
   try {
-    gifts.value = await uploadGiftImage(g.id, file); // 👈 axios + baseURL certa
+    gifts.value = await uploadGiftImage(g.id, file);
     show({ title: "Imagem atualizada!" });
   } catch (e) {
     console.error(e);
@@ -428,7 +595,7 @@ async function uploadImage(g, file) {
 
 async function removeImage(g) {
   try {
-    gifts.value = await deleteGiftImage(g.id); // 👈 axios + baseURL certa
+    gifts.value = await deleteGiftImage(g.id);
     show({ title: "Imagem removida" });
   } catch (e) {
     console.error(e);

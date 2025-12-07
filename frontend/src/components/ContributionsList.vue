@@ -22,7 +22,7 @@
         <option value="canceled">canceled</option>
       </select>
       <button
-        class="btn btn-ghost bg-blue-400 rounded-sm color-white text-white cursor-pointer shadow-sm"
+        class="flex items-center justify-center w-full bg-blue-400 text-white py-2 rounded-sm shadow-sm cursor-pointer md:col-span-1"
         @click="reload"
         :disabled="loading"
       >
