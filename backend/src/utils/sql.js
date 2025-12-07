@@ -1,6 +1,14 @@
 export const SELECT_CONTRIBUTIONS = `
-  SELECT c.id, c.gift_id, g.name AS gift_name,
-         c.padrinho_name, c.amount, c.txid, c.status, c.created_at
+  SELECT 
+    c.id, 
+    c.gift_id, 
+    g.name AS gift_name,
+    c.padrinho_name, 
+    c.amount, 
+    c.txid, 
+    c.status, 
+    c.created_at,
+    c.contribuicao_total
   FROM public.contributions c
   LEFT JOIN public.gifts g ON g.id = c.gift_id
   ORDER BY c.created_at DESC, c.id DESC
@@ -21,7 +29,6 @@ export const SELECT_GIFTS = `
   FROM public.gifts
   ORDER BY id DESC
 `;
-
 
 export const SELECT_TOP_CONTRIBUTORS = `
   SELECT

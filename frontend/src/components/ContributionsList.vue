@@ -58,7 +58,20 @@
               <div class="font-medium">{{ c.padrinho_name }}</div>
               <div class="text-xs text-gray-500">txid: {{ c.txid }}</div>
             </td>
-            <td class="p-3 text-green-500">R$ {{ fix2(c.amount) }}</td>
+            <td class="p-3">
+              <!-- Se marcou que contribuiu com o presente (sem PIX) -->
+              <span
+                v-if="c.contribuicao_total === 'Sim'"
+                class="text-purple-600 font-semibold"
+              >
+                Contribuiu com o presente!!
+              </span>
+
+              <!-- Caso normal: contribuição em dinheiro -->
+              <span v-else class="text-green-500">
+                R$ {{ fix2(c.amount) }}
+              </span>
+            </td>
             <td class="p-3">{{ c.gift_name || "-" }}</td>
             <td class="p-3">
               <span :class="badgeClass(c.status)" class="badge shadow-sm">
@@ -183,12 +196,20 @@ const formatDate = (d) => {
   const date = new Date(d);
   return date.toLocaleString();
 };
-const fix2 = (v) => Number(v).toFixed(2);
+
+const fix2 = (v) => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "0.00";
+  return n.toFixed(2);
+};
 
 const badgeClass = (s) => {
-  if (s === "paid") return "border-green-200 bg-green-50 text-green-700 p-2 rounded-sm";
-  if (s === "pending") return "border-yellow-200 bg-yellow-50 text-yellow-700 p-2 rounded-sm";
-  if (s === "canceled") return "border-gray-200 bg-gray-50 text-gray-600 p-2 rounded-sm";
+  if (s === "paid")
+    return "border-green-200 bg-green-50 text-green-700 p-2 rounded-sm";
+  if (s === "pending")
+    return "border-yellow-200 bg-yellow-50 text-yellow-700 p-2 rounded-sm";
+  if (s === "canceled")
+    return "border-gray-200 bg-gray-50 text-gray-600 p-2 rounded-sm";
   return "border-gray-200 bg-gray-50 text-gray-600";
 };
 
